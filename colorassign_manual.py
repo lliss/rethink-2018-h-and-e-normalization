@@ -56,7 +56,8 @@ def colorassign_manual(rgb):
 
     root = Tk()    
     test = Demo(root)
-    root.destroy()
+    root.mainloop()
+    #root.destroy()
     print(test.test)
 #
 #    # identify centroids in HSV-C space
