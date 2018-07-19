@@ -17,11 +17,23 @@ class Demo(ttk.Frame):
     test = 'Hello'
 
 
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, image_map=None, color_map=None, *args, **kwargs):
         ttk.Frame.__init__(self, parent, *args, **kwargs)
         self.root = parent
+        self.image_map = image_map
+        self.color_map = [self.rgb_to_hex(rgb_row) for rgb_row in color_map]
+        print(color_map)
         self.root.geometry('1000x1000')
         self.init_gui()
+
+
+    def rgb_to_hex(self, rgb):
+        hex_string = [self.get_hex_string(value) for value in rgb]
+        return '#' + ''.join(hex_string)
+    
+    
+    def get_hex_string(self, number):
+        return str(hex(int(number))).replace('0x', '')
 
 
     def on_quit(self):
@@ -77,7 +89,9 @@ class Demo(ttk.Frame):
         
         for x in range(WIDTH):
             for y in range(HEIGHT):
-                self.img.put("#00ff00", (x, y, x+1, y+1))        
+                val = self.image_map[y][x]
+                color = self.color_map[val]
+                self.img.put(color, (x, y, x+1, y+1))        
                              
 
     def init_gui(self):

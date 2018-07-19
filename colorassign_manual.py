@@ -9,19 +9,37 @@ from tkinter import Tk
 
 
 
-def pol2cart(phi, rho, z):
+def pol2cart(rho, phi, z):
     x = rho * math.cos(phi)
     y = rho * math.sin(phi)
-    return [ x, y, z ]
+    return [x, y, z]
+
+
+def cart2pol(x, y, z):
+    rho = math.sqrt(x * x + y * y)
+    phi = math.atan2(y, x)
+    return [rho, phi, z]
 
 
 def hsv_to_hsvc(hsv):
-    return pol2cart(2 * math.pi * hsv[0], hsv[1], hsv[2])
+    # Hue is the the angular component of the coordinate,
+    # hence the strange order.
+    return pol2cart(hsv[1], 2 * math.pi * hsv[0], hsv[2])
 
 
 def rgb255_to_hsv(rgb):
     return colorsys.rgb_to_hsv(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255)
     
+
+def hsv_to_rgb255(hsv):
+    rgb = colorsys.hsv_to_rgb(hsv[0], hsv[1], hsv[2])
+    return [rgb[0] * 255, rgb[1] * 255, rgb[2] *255]
+    
+
+def hsvc_to_hsv(hsvc):
+    polar = cart2pol(hsvc[0], hsvc[1], hsvc[2])
+    return [((polar[1] % (2 * math.pi)) / (2 * math.pi)) , polar[0], polar[2]]
+
 
 def colorassign_manual(rgb):
     # Color assignment
@@ -43,7 +61,7 @@ def colorassign_manual(rgb):
 
     
     # Perform clustering via kmeans
-    flattened_hsv_cartesian = [ cell for row in hsv_cartesian for cell in row]
+    flattened_hsv_cartesian = [cell for row in hsv_cartesian for cell in row]
     image_kmeans = KMeans(n_clusters=NCLUST, random_state=1, max_iter=CLUSTERITER).fit(flattened_hsv_cartesian)
     
     # Produced image of cluster labels.
@@ -51,14 +69,16 @@ def colorassign_manual(rgb):
 
     # Find centroids of color labels in HSVC space.
     centroids = image_kmeans.cluster_centers_
+    centroids_polar = [hsvc_to_hsv(hsvc_array) for hsvc_array in centroids]
+    centroids_rgb = [hsv_to_rgb255(hsv_array) for hsv_array in centroids_polar]
     print(centroids[0][0], centroids[0][1], centroids[0][2])
     print(centroids)
 
     root = Tk()    
-    test = Demo(root)
+    color_chooser = Demo(root, indexed_image, centroids_rgb)
     root.mainloop()
     #root.destroy()
-    print(test.test)
+    print(color_chooser.test)
 #
 #    # identify centroids in HSV-C space
 #    centroidc = NaN(NCLUST,3);
