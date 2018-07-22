@@ -9,7 +9,7 @@ Creates a GUI for manual assignment of colors to hitological structures.
 import tkinter
 from tkinter import ttk, Canvas, PhotoImage, OptionMenu, W
 
-class Demo(ttk.Frame):
+class ColorPicker(ttk.Frame):
 
     selection = {}
     view_radios = []
@@ -170,5 +170,5 @@ class Demo(ttk.Frame):
 
 if __name__ == '__main__':
     root = tkinter.Tk()
-    Demo(root)
+    ColorPicker(root)
     root.mainloop()

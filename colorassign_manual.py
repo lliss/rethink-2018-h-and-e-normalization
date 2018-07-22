@@ -7,7 +7,7 @@ import math
 import sys, getopt
 import json
 from tkinter import Tk
-from demo import Demo
+from color_picker import ColorPicker
 
 
 RANDOM_STATE = None  # For stable results when testing, set to 1.
@@ -67,15 +67,15 @@ def colorassign_manual(rgb):
     centroids_rgb = [hsv_to_rgb255(hsv_array) for hsv_array in centroids_polar]
 
     root = Tk()
-    color_chooser = Demo(root, indexed_image, centroids_rgb)
+    color_picker = ColorPicker(root, indexed_image, centroids_rgb)
     root.mainloop()
 
     return {
         'indexedImage': indexed_image,
-        'lumen': color_chooser.selection_dictionary['lumen'],
-        'nuclei': color_chooser.selection_dictionary['nuclei'],
-        'stroma': color_chooser.selection_dictionary['stroma'],
-        'cytoplasm': color_chooser.selection_dictionary['cytoplasm']
+        'lumen': color_picker.selection_dictionary['lumen'],
+        'nuclei': color_picker.selection_dictionary['nuclei'],
+        'stroma': color_picker.selection_dictionary['stroma'],
+        'cytoplasm': color_picker.selection_dictionary['cytoplasm']
     }
 
 
