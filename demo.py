@@ -14,7 +14,12 @@ from tkinter import ttk, Canvas, PhotoImage, OptionMenu, W
 class Demo(ttk.Frame):
 
     selection = {}
+    view_radios = []
+    view_radio_selections = []
+    selected_colors = []
     test = 'Hello'
+    WIDTH = 640
+    HEIGHT = 480
 
 
     def __init__(self, parent, image_map=None, color_map=None, *args, **kwargs):
@@ -47,53 +52,78 @@ class Demo(ttk.Frame):
 
 
     def dropdown(self):
-        master = self.root
         variable = tkinter.StringVar(self.root)
+        self.selected_colors.append(variable)
         variable.set("White")
-        option = OptionMenu(master, variable, "White", "Nuclei", "Stroma", "Cytyoplasm", "No Response")
+        option = OptionMenu(self.redFrame, variable, "White", "Nuclei", "Stroma", "Cytyoplasm", "No Response", command=self.updateStructureSelection)
         return option
 
 
-    def saveSelection(self, val):
-        if val != None:
-            print(val)
+    def updateStructureSelection(self, parent):
+        for selection in self.selected_colors:
+            choice = selection.get()
+            print(choice)
 
 
-    def makeform(self,fields):
+    def updateViewSelection(self):
+        for index, selection in enumerate(self.view_radio_selections):
+            for x in range(self.WIDTH):
+                for y in range(self.HEIGHT):
+                    val = self.image_map[y][x]
+                    if val == index and selection.get() == 1:                            
+                        color = '#00ff00'
+                        self.img.put(color, (x, y, x+1, y+1))
+                    elif val == index:
+                        color = self.color_map[val]
+                        self.img.put(color, (x, y, x+1, y+1))
+                    
+
+
+    def makeform(self, fields):
        for i in range(len(fields)):
-          tkinter.Frame(self.root)
-          selected = tkinter.StringVar()
-          self.square(fields[i]).grid(row=i, column=1, sticky=W, padx=5, pady=5)
-          self.dropdown().grid(row=i, column=2, sticky=W, padx=5, pady=5)
-          tkinter.Label(self.root, text='View').grid(row=i, column=3, sticky=W, padx=5, pady=5)
-          yes = tkinter.Radiobutton(self.root, text='Yes', variable=selected, value="Yes", command=self.saveSelection(selected.get()))
+          selected = tkinter.IntVar()
+          selected.set(0)
+          self.view_radio_selections.append(selected)
+          self.square(fields[i]).grid(row=i, column=0, sticky=W, padx=5, pady=5)
+          self.dropdown().grid(row=i, column=1, sticky=W, padx=5, pady=5)
+          tkinter.Label(self.redFrame, text='View').grid(row=i, column=2, sticky=W, padx=5, pady=5)
+          yes = tkinter.Radiobutton(self.redFrame, text='Yes', variable=selected, value=1, command=self.updateViewSelection)
           yes.grid(row=i, column=3, sticky=W, padx=5, pady=5)
-          no = tkinter.Radiobutton(self.root, text='No', variable=selected, value="No", command=self.saveSelection(selected.get()))
-          no.grid(row=i, column=5, sticky=W, padx=5, pady=5)
+          no = tkinter.Radiobutton(self.redFrame, text='No', variable=selected, value=0, command=self.updateViewSelection)
+          no.grid(row=i, column=4, sticky=W, padx=5, pady=5)
+          self.view_radios.append(yes)
+          self.view_radios.append(no)
+          
 
 
     def square(self, color):
-        canvas = tkinter.Canvas(self.root)
+        canvas = tkinter.Canvas(self.redFrame)
         canvas.config(width=20, height=20)
         canvas.create_rectangle(0, 0, 20, 20, outline = color, fill=color)#, width=20)
         return canvas
 
 
     def drawImage(self):
-        WIDTH, HEIGHT = 640, 480
-
-        self.canvas = Canvas(self, width=WIDTH, height=HEIGHT, bg="#ffffff")
-        self.canvas.grid(column=0, row=0)
-        self.img = PhotoImage(width=WIDTH, height=HEIGHT)
-        self.canvas.create_image((int(WIDTH/2), int(HEIGHT/2)), image=self.img, state="normal")
+        self.canvas = Canvas(self, width=self.WIDTH, height=self.HEIGHT, bg="#ffffff")
+        self.canvas.grid(column=0, row=0, rowspan=10, padx=5, pady=5)
+        self.img = PhotoImage(width=self.WIDTH, height=self.HEIGHT)
+        self.canvas.create_image((int(self.WIDTH/2), int(self.HEIGHT/2)), image=self.img, state="normal")
         
-        for x in range(WIDTH):
-            for y in range(HEIGHT):
+        for x in range(self.WIDTH):
+            for y in range(self.HEIGHT):
                 val = self.image_map[y][x]
                 color = self.color_map[val]
                 self.img.put(color, (x, y, x+1, y+1))        
                              
-
+            
+    def updateImage(self, selected):
+        for x in range(self.WIDTH):
+            for y in range(self.HEIGHT):
+                val = self.image_map[y][x]
+                color = self.color_map[val]
+                self.img.put(color, (x, y, x+1, y+1))
+        
+            
     def init_gui(self):
         """Builds GUI."""
         self.root.title('Color Assignment')
@@ -109,11 +139,13 @@ class Demo(ttk.Frame):
         
         self.done_button = ttk.Button(self, text='Done',
                                       command=self.done)
-        self.done_button.grid(column=0, row=3, columnspan=4)
+        self.done_button.grid(column=0, row=1, columnspan=2)
 
 
         self.drawImage()
-        self.makeform(["#fb0","#cb0","#fc0","#ab0", "#ff0000"])
+        self.redFrame = tkinter.Frame(self.root, pady=5, bg="red", width=500, height=500)
+        self.redFrame.grid(column=1, row=0)
+        self.makeform(self.color_map)
 
         for child in self.winfo_children():
             child.grid_configure(padx=5, pady=5)
