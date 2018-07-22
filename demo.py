@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Created on Fri Jul 13 13:49:01 2018
+@author: Laurence Liss
 
-@author: LaurenceLiss
-
-Creates a simple GUI for summing two numbers.
+Creates a GUI for manual assignment of colors to hitological structures.
 """
 
 import tkinter
@@ -17,7 +15,13 @@ class Demo(ttk.Frame):
     view_radios = []
     view_radio_selections = []
     selected_colors = []
-    test = 'Hello'
+    selection_dictionary = {
+        'lumen': [],
+        'nuclei': [],
+        'stroma': [],
+        'cytoplasm': []
+    }
+
     WIDTH = 640
     HEIGHT = 480
 
@@ -27,7 +31,6 @@ class Demo(ttk.Frame):
         self.root = parent
         self.image_map = image_map
         self.color_map = [self.rgb_to_hex(rgb_row) for rgb_row in color_map]
-        print(color_map)
         self.root.geometry('1000x1000')
         self.init_gui()
 
@@ -35,14 +38,14 @@ class Demo(ttk.Frame):
     def rgb_to_hex(self, rgb):
         hex_string = [self.get_hex_string(value) for value in rgb]
         return '#' + ''.join(hex_string)
-    
-    
+
+
     def get_hex_string(self, number):
         return str(hex(int(number))).replace('0x', '')
 
 
     def on_quit(self):
-        """Exits program."""
+        """Close the GUI."""
         self.root.destroy()
 
 
@@ -54,15 +57,32 @@ class Demo(ttk.Frame):
     def dropdown(self):
         variable = tkinter.StringVar(self.root)
         self.selected_colors.append(variable)
-        variable.set("White")
-        option = OptionMenu(self.redFrame, variable, "White", "Nuclei", "Stroma", "Cytyoplasm", "No Response", command=self.updateStructureSelection)
+        variable.set('No Response')
+        menu_options = (
+            'White',
+            'Nuclei',
+            'Stroma',
+            'Cytoplasm',
+            'No Response'
+        )
+        option = OptionMenu(self.redFrame, variable, *menu_options, command=self.updateStructureSelection)
         return option
 
 
     def updateStructureSelection(self, parent):
-        for selection in self.selected_colors:
+        # Clear the previously set selections.
+        self.selection_dictionary['lumen'] = []
+        self.selection_dictionary['nuclei'] = []
+        self.selection_dictionary['stroma'] = []
+        self.selection_dictionary['cytoplasm'] = []
+
+        for index, selection in enumerate(self.selected_colors):
             choice = selection.get()
-            print(choice)
+            choice = choice.lower()
+            if choice == 'white':
+                choice = 'lumen'
+            if choice != 'no response':
+                self.selection_dictionary[choice].append(index)
 
 
     def updateViewSelection(self):
@@ -70,13 +90,12 @@ class Demo(ttk.Frame):
             for x in range(self.WIDTH):
                 for y in range(self.HEIGHT):
                     val = self.image_map[y][x]
-                    if val == index and selection.get() == 1:                            
+                    if val == index and selection.get() == 1:
                         color = '#00ff00'
                         self.img.put(color, (x, y, x+1, y+1))
                     elif val == index:
                         color = self.color_map[val]
                         self.img.put(color, (x, y, x+1, y+1))
-                    
 
 
     def makeform(self, fields):
@@ -93,7 +112,6 @@ class Demo(ttk.Frame):
           no.grid(row=i, column=4, sticky=W, padx=5, pady=5)
           self.view_radios.append(yes)
           self.view_radios.append(no)
-          
 
 
     def square(self, color):
@@ -104,26 +122,26 @@ class Demo(ttk.Frame):
 
 
     def drawImage(self):
-        self.canvas = Canvas(self, width=self.WIDTH, height=self.HEIGHT, bg="#ffffff")
+        self.canvas = Canvas(self, width=self.WIDTH, height=self.HEIGHT, bg='#ffffff')
         self.canvas.grid(column=0, row=0, rowspan=10, padx=5, pady=5)
         self.img = PhotoImage(width=self.WIDTH, height=self.HEIGHT)
-        self.canvas.create_image((int(self.WIDTH/2), int(self.HEIGHT/2)), image=self.img, state="normal")
-        
+        self.canvas.create_image((int(self.WIDTH/2), int(self.HEIGHT/2)), image=self.img, state='normal')
+
         for x in range(self.WIDTH):
             for y in range(self.HEIGHT):
                 val = self.image_map[y][x]
                 color = self.color_map[val]
-                self.img.put(color, (x, y, x+1, y+1))        
-                             
-            
+                self.img.put(color, (x, y, x+1, y+1))
+
+
     def updateImage(self, selected):
         for x in range(self.WIDTH):
             for y in range(self.HEIGHT):
                 val = self.image_map[y][x]
                 color = self.color_map[val]
                 self.img.put(color, (x, y, x+1, y+1))
-        
-            
+
+
     def init_gui(self):
         """Builds GUI."""
         self.root.title('Color Assignment')
@@ -136,14 +154,13 @@ class Demo(ttk.Frame):
         self.menubar.add_cascade(menu=self.menu_file, label='File')
         self.menubar.add_cascade(menu=self.menu_edit, label='Edit')
         self.root.config(menu=self.menubar)
-        
-        self.done_button = ttk.Button(self, text='Done',
+
+        self.done_button = ttk.Button(self.root, text='Done',
                                       command=self.done)
         self.done_button.grid(column=0, row=1, columnspan=2)
 
-
         self.drawImage()
-        self.redFrame = tkinter.Frame(self.root, pady=5, bg="red", width=500, height=500)
+        self.redFrame = tkinter.Frame(self.root, pady=5, bg='red', width=500, height=500)
         self.redFrame.grid(column=1, row=0)
         self.makeform(self.color_map)
 
