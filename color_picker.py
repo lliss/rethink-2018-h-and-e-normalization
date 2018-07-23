@@ -65,7 +65,7 @@ class ColorPicker(ttk.Frame):
             'Cytoplasm',
             'No Response'
         )
-        option = OptionMenu(self.redFrame, variable, *menu_options, command=self.updateStructureSelection)
+        option = OptionMenu(self.selectionFrame, variable, *menu_options, command=self.updateStructureSelection)
         return option
 
 
@@ -105,17 +105,17 @@ class ColorPicker(ttk.Frame):
           self.view_radio_selections.append(selected)
           self.square(fields[i]).grid(row=i, column=0, sticky=W, padx=5, pady=5)
           self.dropdown().grid(row=i, column=1, sticky=W, padx=5, pady=5)
-          tkinter.Label(self.redFrame, text='View').grid(row=i, column=2, sticky=W, padx=5, pady=5)
-          yes = tkinter.Radiobutton(self.redFrame, text='Yes', variable=selected, value=1, command=self.updateViewSelection)
+          tkinter.Label(self.selectionFrame, text='View').grid(row=i, column=2, sticky=W, padx=5, pady=5)
+          yes = tkinter.Radiobutton(self.selectionFrame, text='Yes', variable=selected, value=1, command=self.updateViewSelection)
           yes.grid(row=i, column=3, sticky=W, padx=5, pady=5)
-          no = tkinter.Radiobutton(self.redFrame, text='No', variable=selected, value=0, command=self.updateViewSelection)
+          no = tkinter.Radiobutton(self.selectionFrame, text='No', variable=selected, value=0, command=self.updateViewSelection)
           no.grid(row=i, column=4, sticky=W, padx=5, pady=5)
           self.view_radios.append(yes)
           self.view_radios.append(no)
 
 
     def square(self, color):
-        canvas = tkinter.Canvas(self.redFrame)
+        canvas = tkinter.Canvas(self.selectionFrame)
         canvas.config(width=20, height=20)
         canvas.create_rectangle(0, 0, 20, 20, outline = color, fill=color)#, width=20)
         return canvas
@@ -160,8 +160,8 @@ class ColorPicker(ttk.Frame):
         self.done_button.grid(column=0, row=1, columnspan=2)
 
         self.drawImage()
-        self.redFrame = tkinter.Frame(self.root, pady=5, bg='red', width=500, height=500)
-        self.redFrame.grid(column=1, row=0)
+        self.selectionFrame = tkinter.Frame(self.root, pady=5, width=500, height=500)
+        self.selectionFrame.grid(column=1, row=0)
         self.makeform(self.color_map)
 
         for child in self.winfo_children():
