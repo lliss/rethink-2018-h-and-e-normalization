@@ -7,7 +7,7 @@ import math
 import sys, getopt
 import json
 from tkinter import Tk
-from color_picker import ColorPicker
+from .color_picker import ColorPicker
 
 
 RANDOM_STATE = None  # For stable results when testing, set to 1.
